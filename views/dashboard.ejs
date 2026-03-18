@@ -1,0 +1,30 @@
+<%- include('partials/header') %>
+<%- include('partials/nav') %>
+
+
+<h2>Your Tasks</h2>
+
+<!-- ADD TASK -->
+<form method="POST" action="/tasks">
+  <input name="title" placeholder="New Task" required />
+  <button type="submit">Add Task</button>
+</form>
+
+<ul>
+  <% tasks.forEach(task => { %>
+    <li>
+      <!-- EDIT TASK -->
+      <form method="POST" action="/tasks/<%= task._id %>/edit" style="display:inline;">
+        <input name="title" value="<%= task.title %>" required />
+        <button type="submit">Update</button>
+      </form>
+
+      <!-- DELETE TASK -->
+      <form method="POST" action="/tasks/<%= task._id %>/delete" style="display:inline;">
+        <button type="submit">Delete</button>
+      </form>
+    </li>
+  <% }) %>
+</ul>
+
+<%- include('partials/footer') %>

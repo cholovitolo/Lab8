@@ -1,0 +1,24 @@
+<h2>Your Tasks</h2>
+
+<!-- ADD TASK -->
+<form method="POST" action="/tasks">
+  <input name="title" placeholder="New Task" required />
+  <button>Add Task</button>
+</form>
+
+<ul>
+  {{#each tasks}}
+    <li>
+      <!-- EDIT -->
+      <form method="POST" action="/tasks/{{this._id}}/edit" style="display:inline;">
+        <input name="title" value="{{this.title}}" required />
+        <button type="submit">Update</button>
+      </form>
+
+      <!-- DELETE -->
+      <form method="POST" action="/tasks/{{this._id}}/delete" style="display:inline;">
+        <button type="submit">Delete</button>
+      </form>
+    </li>
+  {{/each}}
+</ul>

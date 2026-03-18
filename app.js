@@ -90,10 +90,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static("public"));
 
-// ✅ REQUIRED for flash to work
+// ✅ Session (use env secret in production)
 app.use(
   session({
-    secret: "secret",
+    secret: process.env.SESSION_SECRET || "secret",
     resave: false,
     saveUninitialized: false,
   })
@@ -101,18 +101,18 @@ app.use(
 
 app.use(flash());
 
-// ✅ Make messages available in all views
+// Flash messages available in all views
 app.use((req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   next();
 });
 
-// EJS configuration
+// EJS setup
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// ✅ FIX: root route
+// Root route
 app.get("/", (req, res) => {
   res.redirect("/login");
 });
@@ -122,9 +122,12 @@ app.use(authRoutes);
 app.use(taskRoutes);
 app.use(pageRoutes);
 
-// ✅ fallback (must be last)
+// Fallback (must be last)
 app.use((req, res) => {
   res.redirect("/login");
 });
 
-app.listen(3000, () => console.log("Server running on port 3000"));
+// ✅ ONLY ONE listen (FIXED)
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

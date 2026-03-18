@@ -88,6 +88,7 @@ connectDB();
 // Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(express.static("public"));
 
 // ✅ REQUIRED for flash to work
 app.use(

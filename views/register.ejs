@@ -1,7 +1,11 @@
+<%- include('partials/header') %>
+<%- include('partials/nav') %>
+
 <h2>Register</h2>
 <form method="POST" action="/register">
-  <input name="username" placeholder="Username" required />
-  <input name="email" type="email" placeholder="Email" required />
-  <input name="password" type="password" placeholder="Password" required />
-  <button>Register</button>
-</form>
+    <input name="username" placeholder="Username" required />
+    <input name="email" type="email" placeholder="Email" required />
+    <input name="password" type="password" placeholder="Password" required />
+    <button type="submit">Register</button>
+  </form>
+

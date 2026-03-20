@@ -12,7 +12,6 @@ export const register = async (req, res) => {
     password: hashed,
   });
 
-  // ✅ Flash message added
   req.flash("success", "Registration successful! Please login.");
   res.redirect("/login");
 };
@@ -21,7 +20,6 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   const user = await User.findOne({ email: req.body.email });
 
-  // ❌ moved flash BEFORE return
   if (!user) {
     req.flash("error", "User not found");
     return res.redirect("/login");
@@ -34,7 +32,6 @@ export const login = async (req, res) => {
     return res.redirect("/login");
   }
 
-  // ✅ success message
   req.flash("success", "Login successful!");
 
   const accessToken = jwt.sign(
@@ -52,34 +49,54 @@ export const login = async (req, res) => {
   user.refreshToken = refreshToken;
   await user.save();
 
-  // ⚠️ FIX: secure must be FALSE for localhost
+  const isProduction = process.env.NODE_ENV === "production";
+
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
-    secure: false,
+    secure: isProduction,
     sameSite: "Strict",
   });
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    secure: false,
+    secure: isProduction,
     sameSite: "Strict",
   });
 
   res.redirect("/dashboard");
 };
 
-// ✅ LOGOUT
+// ✅ LOGOUT (FIXED)
 export const logout = async (req, res) => {
-  const user = await User.findById(req.user?.id);
+  try {
+    const refreshToken = req.cookies?.refreshToken;
 
-  if (user) {
-    user.refreshToken = null;
-    await user.save();
+    if (refreshToken) {
+      const user = await User.findOne({ refreshToken });
+
+      if (user) {
+        user.refreshToken = null;
+        await user.save();
+      }
+    }
+
+    // 🔥 CLEAR COOKIES PROPERLY
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+    });
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+    });
+
+    req.flash("success", "Logged out successfully");
+    res.redirect("/login");
+  } catch (err) {
+    console.error(err);
+    res.redirect("/login");
   }
-
-  res.clearCookie("accessToken");
-  res.clearCookie("refreshToken");
-
-  req.flash("success", "Logged out successfully");
-  res.redirect("/login");
 };
